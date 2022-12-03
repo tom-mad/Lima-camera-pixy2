@@ -24,7 +24,7 @@
 
 #pragma once
 
-#include <Pixy2_export.h>
+#include <pixy2_export.h>
 
 #include "lima/HwInterface.h"
 
