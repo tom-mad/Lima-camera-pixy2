@@ -25,7 +25,8 @@
 #pragma once
 
 #include <pixy2_export.h>
-
+#include <lima/HwBufferMgr.h>
+#include "lima/HwInterface.h"
 #include <lima/Debug.h>
 
 namespace lima
@@ -39,6 +40,12 @@ namespace pixy2
   public:
     Camera();
     ~Camera();
+
+    HwBufferCtrlObj *getBufferCtrlObj() { return &m_buffer_ctrl_obj; }
+
+  private:
+    // lima stuff
+      SoftBufferCtrlObj m_buffer_ctrl_obj;
   };
 
 } // namespace pixy2

@@ -32,6 +32,8 @@ namespace lima
 {
 namespace pixy2
 {
+  class DetInfoCtrlObj;
+  class SyncCtrlObj;
   class Camera;
   
   class PIXY2_EXPORT Interface : public HwInterface
@@ -48,10 +50,13 @@ namespace pixy2
     virtual void	startAcq();
     virtual void	stopAcq();
     virtual void	getStatus(StatusType& status);
-    virtual int	        getNbHwAcquiredFrames();
+    virtual int	  getNbHwAcquiredFrames();
 
   private:
     Camera&		m_cam;
+    // CapList		m_cap_list;
+    DetInfoCtrlObj*	m_det_info;
+    SyncCtrlObj*	m_sync;
   };
 
 } // namespace pixy2

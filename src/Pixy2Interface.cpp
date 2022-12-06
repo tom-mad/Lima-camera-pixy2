@@ -24,6 +24,8 @@
 
 #include "pixy2/Interface.h"
 #include "pixy2/Camera.h"
+#include "pixy2/DetInfoCtrlObj.h"
+#include "pixy2/SyncCtrlObj.h"
 
 using namespace lima;
 using namespace lima::pixy2;
@@ -31,16 +33,26 @@ using namespace lima::pixy2;
 Interface::Interface(Camera& cam) :
   m_cam(cam)
 {
+  m_det_info = new DetInfoCtrlObj(cam);
+  m_sync = new SyncCtrlObj(cam);
   DEB_CONSTRUCTOR();
 }
 
 Interface::~Interface()
 {
   DEB_DESTRUCTOR();
+  delete m_det_info;
+  delete m_sync;
+
 }
 
 void Interface::getCapList(CapList &cap_list) const
 {
+  cap_list.push_back(HwCap(m_det_info));
+  HwBufferCtrlObj *buffer = m_cam.getBufferCtrlObj();
+  cap_list.push_back(HwCap(buffer));
+
+  cap_list.push_back(HwCap(m_sync));
 }
 
 void Interface::reset(ResetLevel reset_level)
