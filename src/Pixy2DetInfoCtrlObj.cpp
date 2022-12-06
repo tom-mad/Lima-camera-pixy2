@@ -25,6 +25,9 @@
 using namespace lima;
 using namespace lima::pixy2;
 
+DetInfoCtrlObj::DetInfoCtrlObj(Camera& cam) : m_cam(cam) {}
+DetInfoCtrlObj::~DetInfoCtrlObj() {}
+
 void DetInfoCtrlObj::getMaxImageSize(Size &max_image_size)
 {
   DEB_MEMBER_FUNCT();
