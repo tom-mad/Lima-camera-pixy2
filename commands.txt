@@ -6,4 +6,5 @@ g++ get_rgb_demo.cpp
 -lusb-1.0
 
 cmake -Bbuild -H. -DLIMA_ENABLE_PYTHON=1 -DCAMERA_ENABLE_TESTS=1 -DCMAKE_FIND_ROOT_PATH=$CONDA_PREFIX -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX
-cmake --build build --target install
+sudo cmake --build build --target install
+cmake -Bbuild -DLIMA_ENABLE_PYTHON=1 -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DLIMA_ENABLE_PYTANGO_SERVER=1
