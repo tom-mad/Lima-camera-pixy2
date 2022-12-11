@@ -33,6 +33,9 @@ using namespace lima::pixy2;
 Camera::Camera()
 {
   DEB_CONSTRUCTOR();
+
+  Pixy2        pixy;
+
 }
 
 //---------------------------

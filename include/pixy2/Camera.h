@@ -29,6 +29,8 @@
 #include "lima/HwInterface.h"
 #include <lima/Debug.h>
 
+#include "libpixyusb2.h"
+
 namespace lima
 {
 namespace pixy2
