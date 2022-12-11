@@ -31,13 +31,13 @@ DetInfoCtrlObj::~DetInfoCtrlObj() {}
 void DetInfoCtrlObj::getMaxImageSize(Size &max_image_size)
 {
   DEB_MEMBER_FUNCT();
-  // TODO
+  m_cam.getDetectorImageSize(max_image_size);
 }
 
 void DetInfoCtrlObj::getDetectorImageSize(Size &det_image_size)
 {
   DEB_MEMBER_FUNCT();
-  // TODO
+  m_cam.getDetectorImageSize(det_image_size);
 }
 
 void DetInfoCtrlObj::getDefImageType(ImageType &def_image_type)
@@ -67,13 +67,13 @@ void DetInfoCtrlObj::getPixelSize(double &x_size, double &y_size)
 void DetInfoCtrlObj::getDetectorType(std::string &det_type)
 {
   DEB_MEMBER_FUNCT();
-  det_type = "Iris";
+  det_type = "Pixy2";
 }
 
 void DetInfoCtrlObj::getDetectorModel(std::string &det_model)
 {
   DEB_MEMBER_FUNCT();
-  // TODO
+  m_cam.getDetectorModel(det_model);
 }
 
 void DetInfoCtrlObj::registerMaxImageSizeCallback(HwMaxImageSizeCallback &cbk)

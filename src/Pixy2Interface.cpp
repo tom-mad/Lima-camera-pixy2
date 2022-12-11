@@ -64,29 +64,50 @@ void Interface::reset(ResetLevel reset_level)
 void Interface::prepareAcq()
 {
   DEB_MEMBER_FUNCT();
+
+  m_cam.prepareAcq();
 }
 
 void Interface::startAcq()
 {
   DEB_MEMBER_FUNCT();
+
+  m_cam.startAcq();
 }
 
 void Interface::stopAcq()
 {
   DEB_MEMBER_FUNCT();
+
+  m_cam.stopAcq();
 }
 
 void Interface::getStatus(StatusType& status)
 {
   DEB_MEMBER_FUNCT();
+
+  // switch (m_cam.getStatus())
+  // {
+  //   case Camera::Ready:
+  //     status.set(HwInterface::StatusType::Ready);
+  //     break;
+  //   case Camera::Exposure:
+  //     status.set(HwInterface::StatusType::Exposure);
+  //     break;
+  //   case Camera::Readout:
+  //     status.set(HwInterface::StatusType::Readout);
+  //     break;
+  //   case Camera::Latency:
+  //     status.set(HwInterface::StatusType::Latency);
+  //     break;
+  //   case Camera::Fault:
+  //     status.set(HwInterface::StatusType::Fault);
+  // }
 }
 
 int Interface::getNbHwAcquiredFrames()
 {
   DEB_MEMBER_FUNCT();
-  
-  // TODO: get the number of acquired frames
-  int acq_frames = 0;
-  
-  return acq_frames;
+
+  return m_cam.getNbHwAcquiredFrames();
 }

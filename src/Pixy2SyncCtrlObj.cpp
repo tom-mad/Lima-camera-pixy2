@@ -45,42 +45,42 @@ bool SyncCtrlObj::checkTrigMode(TrigMode trig_mode)
 void SyncCtrlObj::setTrigMode(TrigMode trig_mode)
 {
   if (!checkTrigMode(trig_mode)) throw LIMA_HW_EXC(InvalidValue, "Invalid (external) trigger");
-  // TODO
+  m_cam.setTrigMode(trig_mode);
 }
 
 void SyncCtrlObj::getTrigMode(TrigMode &trig_mode)
 {
-  // TODO
+  m_cam.getTrigMode(trig_mode);
 }
 
 void SyncCtrlObj::setExpTime(double exp_time)
 {
-  // TODO
+  m_cam.setExpTime(exp_time);
 }
 
 void SyncCtrlObj::getExpTime(double &exp_time)
 {
-  // TODO
+  m_cam.getExpTime(exp_time);
 }
 
 void SyncCtrlObj::setLatTime(double lat_time)
 {
-  // TODO
+  m_cam.setLatTime(lat_time);
 }
 
 void SyncCtrlObj::getLatTime(double &lat_time)
 {
-  // TODO
+  m_cam.getLatTime(lat_time);
 }
 
 void SyncCtrlObj::setNbHwFrames(int nb_frames)
 {
-  // TODO
+  m_cam.setNbHwFrames(nb_frames);
 }
 
 void SyncCtrlObj::getNbHwFrames(int &nb_frames)
 {
-  // TODO
+  m_cam.getNbHwFrames(nb_frames);
 }
 
 void SyncCtrlObj::getValidRanges(ValidRangesType &valid_ranges)
