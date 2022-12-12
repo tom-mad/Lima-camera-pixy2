@@ -51,7 +51,7 @@ namespace pixy2
 //- Internal
 //---------------------------
     void _startAcq();
-    void _stopAcq(bool internalFlag);
+    void _stopAcq(bool internalFlag = false);
     void _setStatus(Camera::Status status, bool force);
     void demosaic(uint16_t width, uint16_t height, const uint8_t *bayerImage, uint32_t *image);
 //---------------------------
@@ -68,6 +68,7 @@ namespace pixy2
 //---------------------------
     void getDetectorImageSize(Size &size);
     void getDetectorModel(std::string &det_model);
+    void getImageType(ImageType &image_type);
 //---------------------------
 //- SyncCtrlObj
 //---------------------------

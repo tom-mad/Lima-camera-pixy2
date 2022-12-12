@@ -113,7 +113,7 @@ void Camera::_AcqThread::threadFunction() {
     while(pixy_cam.pixy_wait_flag && !pixy_cam.pixy_quit)
     {
       DEB_TRACE() << "Wait";
-      std::cout<<"Record2"<<std::endl;
+      std::cout<<"Wait"<<std::endl;
       pixy_cam.pixy_thread_running = false;
       pixy_cam.pixy_cond.broadcast();
       pixy_cam.pixy_cond.wait();
@@ -137,7 +137,8 @@ void Camera::_AcqThread::threadFunction() {
       {
         pixy_cam._setStatus(Camera::Ready, false);
         break;
-      }
+      } 
+      std::cout << "update picture "<<pixy_cam.pixy_image_number<<" of "<<pixy_cam.pixy_nb_frames<<std::endl;
       uint8_t *bayerFrame;
       pixy_cam.pixy.m_link.stop();
 
@@ -245,31 +246,23 @@ void Camera::_stopAcq(bool internalFlag)
 {
   DEB_MEMBER_FUNCT();
 
-  // try
-  // {
+  try
+  {
     AutoMutex aLock(pixy_cond.mutex());
 
-  //   if (pixy_status != Camera::Ready || internalFlag)
-  //   {
-  //     DEB_TRACE() << "Stop acq";
-  //     if (PV_OK !=  pl_exp_stop_cont(ctx->hcam, CCS_HALT))
-  //     {
-  //       _printError();
-  //     }
-  //     else
-  //     {
-  //       ctx->threadAbortFlag = true;
-  //       pixy_wait_flag = true;
-  //       _setStatus(Camera::Ready, false);
-  //       pixy_cond.broadcast();
-  //     }
-  //     aLock.unlock();
-  //   }
-  // }
-  // catch(Exception e)
-  // {
-  //   THROW_HW_ERROR(Error) << e;
-  // }
+    if (pixy_status != Camera::Ready || internalFlag)
+    {
+      DEB_TRACE() << "Stop acq";
+        pixy_wait_flag = true;
+        _setStatus(Camera::Ready, false);
+        pixy_cond.broadcast();
+      aLock.unlock();
+    }
+  }
+  catch(Exception e)
+  {
+    THROW_HW_ERROR(Error) << e;
+  }
 }
 void Camera::_setStatus(Camera::Status status, bool force)
 {
@@ -296,11 +289,21 @@ void Camera::startAcq()
 {
   DEB_MEMBER_FUNCT();
 
+  if (!pixy_acq_started) {
+    // if (PV_OK != pl_exp_start_cont(ctx->hcam, m_circular_buffer, m_circular_buffer_size)) {
+    //   _printError("Unable to start acq");
+    //   _setStatus(Camera::Fault, false);
+    // }
+    pixy_buffer_ctrl_obj.getBuffer().setStartTimestamp(Timestamp::now());
+    // Now start the Acq. thread loop
+    _startAcq();
+  }
+
 }
 void Camera::stopAcq()
 {
   DEB_MEMBER_FUNCT();
-
+  _stopAcq();
 }
 void Camera::reset()
 {
@@ -338,6 +341,11 @@ void Camera::getDetectorModel(std::string &det_model)
 
   int8_t Result = pixy.getVersion();
   det_model = std::to_string(Result);
+}
+void Camera::getImageType(ImageType &image_type)
+{
+  DEB_MEMBER_FUNCT();
+  image_type = Bpp8;
 }
 //---------------------------
 //- SyncCtrlObj
