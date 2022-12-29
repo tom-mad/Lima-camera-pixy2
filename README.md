@@ -14,13 +14,8 @@ This is the LImA plugin for the Pixy2 cameras.
 
 ## Install
 
-### Camera python
-
-conda install -c esrf-bcu lima-camera-pixy2
-
-### Camera tango device server
-
-conda install -c tango-controls -c esrf-bcu lima-camera-pixy2-tango
+        cmake -Bbuild -DLIMA_ENABLE_PYTHON=1 -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DLIMA_ENABLE_PYTANGO_SERVER=1
+        sudo cmake --build build --target install
 
 # LImA
 
