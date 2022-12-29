@@ -55,6 +55,7 @@ void DetInfoCtrlObj::setCurrImageType(ImageType curr_image_type)
 void DetInfoCtrlObj::getCurrImageType(ImageType &curr_image_type)
 {
   DEB_MEMBER_FUNCT();
+  m_cam.getImageType(curr_image_type);
   // TODO
 }
 
