@@ -3,6 +3,8 @@
 using namespace lima;
 using namespace lima::pixy2;
 
+#include <chrono>
+#include <thread>
 
 //---------------------------
 //- Acq Thread
@@ -36,14 +38,14 @@ Camera::_AcqThread::~_AcqThread()
 //---------------------------
 Camera::Camera():
 pixy_image_number(0),
-pixy_nb_frames(0),
+pixy_nb_frames(1),
 pixy_status(Ready),
 pixy_quit(false),
 pixy_wait_flag(true),
 pixy_thread_running(true),
 pixy_acq_thread(nullptr),
 pixy_acq_started(false),
-pixy_exposure_time(0.)
+pixy_exposure_time(1.)
 {
   DEB_CONSTRUCTOR();
 
@@ -101,7 +103,6 @@ void Camera::_AcqThread::threadFunction() {
     bool continueAcq = true;
     bool isError = false;
     uint32_t rgbFrame[PIXY2_RAW_FRAME_WIDTH*PIXY2_RAW_FRAME_HEIGHT];
-
     pixy_cam._setStatus(Camera::Readout, false);
     while(continueAcq && (!pixy_cam.pixy_nb_frames || pixy_cam.pixy_image_number < pixy_cam.pixy_nb_frames))
     {
@@ -129,6 +130,7 @@ void Camera::_AcqThread::threadFunction() {
         
       continueAcq = buffer_mgr.newFrameReady(frame_info);
       ++pixy_cam.pixy_image_number;
+      std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<long int>(pixy_cam.pixy_exposure_time * 1000)));
     } // end acquisition while
     pixy_cam._stopAcq(true);
     pixy_cam.pixy_wait_flag = true;
