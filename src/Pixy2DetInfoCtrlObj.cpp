@@ -34,7 +34,6 @@ void DetInfoCtrlObj::getCurrImageType(ImageType &curr_image_type)
 {
   DEB_MEMBER_FUNCT();
   m_cam.getImageType(curr_image_type);
-  // TODO
 }
 
 void DetInfoCtrlObj::getPixelSize(double &x_size, double &y_size)

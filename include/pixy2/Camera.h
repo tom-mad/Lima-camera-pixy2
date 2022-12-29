@@ -37,7 +37,7 @@ namespace pixy2
     void startAcq();
     void stopAcq();
     void reset();
-    void getStatus(Camera::Status& status);
+    Camera::Status getStatus();
     int getNbHwAcquiredFrames();
 //---------------------------
 //- DetInfoCtrlObj
@@ -76,6 +76,7 @@ namespace pixy2
 //- SyncCtrlObj
 //---------------------------
     int pixy_nb_frames;
+    double pixy_exposure_time;
 //---------------------------
 //- AcqThread
 //---------------------------

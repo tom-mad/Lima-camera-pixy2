@@ -61,24 +61,24 @@ void Interface::stopAcq()
 void Interface::getStatus(StatusType& status)
 {
   DEB_MEMBER_FUNCT();
-
-  // switch (m_cam.getStatus())
-  // {
-  //   case Camera::Ready:
-  //     status.set(HwInterface::StatusType::Ready);
-  //     break;
-  //   case Camera::Exposure:
-  //     status.set(HwInterface::StatusType::Exposure);
-  //     break;
-  //   case Camera::Readout:
-  //     status.set(HwInterface::StatusType::Readout);
-  //     break;
-  //   case Camera::Latency:
-  //     status.set(HwInterface::StatusType::Latency);
-  //     break;
-  //   case Camera::Fault:
-  //     status.set(HwInterface::StatusType::Fault);
-  // }
+  
+  switch (m_cam.getStatus())
+  {
+    case Camera::Ready:
+      status.set(HwInterface::StatusType::Ready);
+      break;
+    case Camera::Exposure:
+      status.set(HwInterface::StatusType::Exposure);
+      break;
+    case Camera::Readout:
+      status.set(HwInterface::StatusType::Readout);
+      break;
+    case Camera::Latency:
+      status.set(HwInterface::StatusType::Latency);
+      break;
+    case Camera::Fault:
+      status.set(HwInterface::StatusType::Fault);
+  }
 }
 
 int Interface::getNbHwAcquiredFrames()

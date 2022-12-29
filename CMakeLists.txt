@@ -55,6 +55,8 @@ file(GLOB_RECURSE CAMERA_INCS "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h")
 # Library definition
 add_library(pixy2 SHARED
   src/Pixy2Camera.cpp
+  src/Pixy2CameraInterface.cpp
+  src/Pixy2CameraUtils.cpp
   src/Pixy2Interface.cpp
   src/Pixy2DetInfoCtrlObj.cpp
   src/Pixy2ShutterCtrlObj.cpp
