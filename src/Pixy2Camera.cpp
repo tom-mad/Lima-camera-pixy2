@@ -1,27 +1,3 @@
-//###########################################################################
-// This file is part of LImA, a Library for Image Acquisition
-//
-// Copyright (C) : 2009-2020
-// European Synchrotron Radiation Facility
-// CS40220 38043 Grenoble Cedex 9
-// FRANCE
-//
-// Contact: lima@esrf.fr
-//
-// This is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 3 of the License, or
-// (at your option) any later version.
-//
-// This software is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, see <http://www.gnu.org/licenses/>.
-//###########################################################################
-
 #include "pixy2/Camera.h"
 
 using namespace lima;
@@ -66,7 +42,8 @@ pixy_quit(false),
 pixy_wait_flag(true),
 pixy_thread_running(true),
 pixy_acq_thread(nullptr),
-pixy_acq_started(false)
+pixy_acq_started(false),
+pixy_exposure_time(0.)
 {
   DEB_CONSTRUCTOR();
 
@@ -104,9 +81,7 @@ Camera::~Camera()
 void Camera::_AcqThread::threadFunction() {
   DEB_MEMBER_FUNCT();
 
-  AutoMutex aLock(pixy_cam.pixy_cond.mutex());
   StdBufferCbMgr& buffer_mgr = pixy_cam.pixy_buffer_ctrl_obj.getBuffer();
-  std::cout<<"Record1"<<std::endl;
 
   while (!pixy_cam.pixy_quit)
   {
@@ -118,53 +93,56 @@ void Camera::_AcqThread::threadFunction() {
       pixy_cam.pixy_cond.broadcast();
       pixy_cam.pixy_cond.wait();
     }
-    std::cout<<"Record"<<std::endl;
     pixy_cam.pixy_thread_running = true;
     if (pixy_cam.pixy_quit) return;
 
     pixy_cam.pixy_status = Camera::Exposure;
     pixy_cam.pixy_cond.broadcast();
-    aLock.unlock();
 
     bool continueAcq = true;
     bool isError = false;
     uint32_t rgbFrame[PIXY2_RAW_FRAME_WIDTH*PIXY2_RAW_FRAME_HEIGHT];
 
+    uint8_t *bayerFrame;
     pixy_cam._setStatus(Camera::Readout, false);
     while(continueAcq && (!pixy_cam.pixy_nb_frames || pixy_cam.pixy_image_number < pixy_cam.pixy_nb_frames))
     {
+      // auto start = high_resolution_clock::now();
       if (pixy_cam.pixy_wait_flag)
       {
         pixy_cam._setStatus(Camera::Ready, false);
         break;
       } 
-      std::cout << "update picture "<<pixy_cam.pixy_image_number<<" of "<<pixy_cam.pixy_nb_frames<<std::endl;
-      uint8_t *bayerFrame;
-      pixy_cam.pixy.m_link.stop();
-
       // grab raw frame, BGGR Bayer format, 1 byte per pixel
+      std::cout<<"test1"<<std::endl;
       pixy_cam.pixy.m_link.getRawFrame(&bayerFrame);
+      std::cout<<"test12"<<std::endl;
+      // pixy_cam.mark_lines(bayerFrame);
       // convert Bayer frame to RGB frame
-      pixy_cam.demosaic(PIXY2_RAW_FRAME_WIDTH, PIXY2_RAW_FRAME_HEIGHT, bayerFrame, rgbFrame);
-      pixy_cam.pixy.m_link.resume();
-
+      // pixy_cam.demosaic(PIXY2_RAW_FRAME_WIDTH, PIXY2_RAW_FRAME_HEIGHT, bayerFrame, rgbFrame);
+      std::cout<<"test4"<<std::endl;
       HwFrameInfoType frame_info;
       frame_info.acq_frame_nb = pixy_cam.pixy_image_number;
       void *framePt = buffer_mgr.getFrameBufferPtr(pixy_cam.pixy_image_number);
 
+      std::cout<<"test5"<<std::endl;
       const FrameDim& fDim = buffer_mgr.getFrameDim();
       void* srcPt = ((char*)bayerFrame);
+
+      std::cout<<"test6"<<fDim.getMemSize()<<std::endl;
       memcpy(framePt, srcPt, fDim.getMemSize());
+      std::cout<<"test7"<<std::endl;
       DEB_TRACE() << "memcpy:" << DEB_VAR2(srcPt, framePt);
+      std::cout<<"test8"<<std::endl;
         
+      std::cout<<"test3"<<std::endl;
       continueAcq = buffer_mgr.newFrameReady(frame_info);
-      aLock.lock();
       ++pixy_cam.pixy_image_number;
-      aLock.unlock();
+      // auto stop = high_resolution_clock::now();
+      // std::cout << "update picture "<<pixy_cam.pixy_image_number<<" of "<<pixy_cam.pixy_nb_frames<<"Time: "<<duration_cast<seconds>(stop - start).count()<<std::endl;
+      
     } // end acquisition while
     pixy_cam._stopAcq(true);
-
-    aLock.lock();
     pixy_cam.pixy_wait_flag = true;
   }
 }
@@ -235,7 +213,7 @@ void Camera::demosaic(uint16_t width, uint16_t height, const uint8_t *bayerImage
 void Camera::_startAcq()
 {
   DEB_MEMBER_FUNCT();
-  AutoMutex aLock(pixy_cond.mutex());
+  pixy.m_link.stop();
 
   pixy_wait_flag = false;
   pixy_cond.broadcast();
@@ -246,34 +224,15 @@ void Camera::_stopAcq(bool internalFlag)
 {
   DEB_MEMBER_FUNCT();
 
-  try
-  {
-    AutoMutex aLock(pixy_cond.mutex());
-
-    if (pixy_status != Camera::Ready || internalFlag)
-    {
-      DEB_TRACE() << "Stop acq";
-        pixy_wait_flag = true;
-        _setStatus(Camera::Ready, false);
-        pixy_cond.broadcast();
-      aLock.unlock();
-    }
-  }
-  catch(Exception e)
-  {
-    THROW_HW_ERROR(Error) << e;
-  }
+  pixy_wait_flag = true;
+  pixy_cond.broadcast();
+  pixy.m_link.resume();
 }
+
 void Camera::_setStatus(Camera::Status status, bool force)
 {
   DEB_MEMBER_FUNCT();
-  AutoMutex aLock(pixy_cond.mutex());
-
-  if (force || pixy_status != Camera::Fault)
-  {
-    pixy_status = status;
-  }
-
+  pixy_status = status;
   pixy_cond.broadcast();
 }
 
@@ -283,19 +242,15 @@ void Camera::_setStatus(Camera::Status status, bool force)
 void Camera::prepareAcq()
 {
   DEB_MEMBER_FUNCT();
-
+  pixy_image_number = 0;
+  pixy_acq_started = false;
 }
 void Camera::startAcq()
 {
   DEB_MEMBER_FUNCT();
-
+  std::cout<<"val: "<<pixy_acq_started<<std::endl;
   if (!pixy_acq_started) {
-    // if (PV_OK != pl_exp_start_cont(ctx->hcam, m_circular_buffer, m_circular_buffer_size)) {
-    //   _printError("Unable to start acq");
-    //   _setStatus(Camera::Fault, false);
-    // }
     pixy_buffer_ctrl_obj.getBuffer().setStartTimestamp(Timestamp::now());
-    // Now start the Acq. thread loop
     _startAcq();
   }
 
@@ -305,20 +260,27 @@ void Camera::stopAcq()
   DEB_MEMBER_FUNCT();
   _stopAcq();
 }
+
 void Camera::reset()
 {
   DEB_MEMBER_FUNCT();
-
+  try
+  {
+    _stopAcq();
+  }
+  catch(Exception e)
+  {
+    THROW_HW_ERROR(Error) << e;
+  }
 }
 
-void Camera::getStatus(Camera::Status& status)
+Camera::Status Camera::getStatus()
 {
   DEB_MEMBER_FUNCT();
 
-  AutoMutex aLock(pixy_cond.mutex());
-  status = pixy_status;
+  return pixy_status;
 
-  DEB_RETURN() << DEB_VAR1(status);
+  // DEB_RETURN() << DEB_VAR1(status);
 }
 
 int Camera::getNbHwAcquiredFrames()
@@ -333,6 +295,7 @@ void Camera::getDetectorImageSize(Size &size)
   DEB_MEMBER_FUNCT();
 
   size = Size(PIXY2_RAW_FRAME_WIDTH, PIXY2_RAW_FRAME_HEIGHT);
+  DEB_RETURN() << DEB_VAR1(size);
 }
 
 void Camera::getDetectorModel(std::string &det_model)
@@ -345,7 +308,7 @@ void Camera::getDetectorModel(std::string &det_model)
 void Camera::getImageType(ImageType &image_type)
 {
   DEB_MEMBER_FUNCT();
-  image_type = Bpp8;
+  image_type = Bpp16;
 }
 //---------------------------
 //- SyncCtrlObj
@@ -360,11 +323,11 @@ void Camera::getTrigMode(TrigMode &trig_mode)
 }
 void Camera::setExpTime(double exp_time)
 {
-
+  pixy_exposure_time = exp_time;
 }
 void Camera::getExpTime(double &exp_time)
 {
-
+  exp_time = pixy_exposure_time;
 }
 void Camera::setLatTime(double lat_time)
 {

@@ -12,16 +12,6 @@ This repository aims to get you started with LImA camera plugin development. It 
 
 This is the LImA plugin for the Pixy2 cameras.
 
-## Install
-
-### Camera python
-
-conda install -c esrf-bcu lima-camera-pixy2
-
-### Camera tango device server
-
-conda install -c tango-controls -c esrf-bcu lima-camera-pixy2-tango
-
 # LImA
 
 Lima ( **L** ibrary for **Im** age **A** cquisition) is a project for the unified control of 2D detectors. The aim is to clearly separate hardware specific code from common software configuration and features, like setting standard acquisition parameters (exposure time, external trigger), file saving and image processing.

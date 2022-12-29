@@ -2,6 +2,8 @@ set(PixLib_INCLUDE_DIRS /home/tango-cs/PROJECT/pixy2_sdk/API/include)
 set(PixLib_LIBRARIES /home/tango-cs/PROJECT/pixy2_sdk/API/bin/libpixy2.a)
 set(PixLib_DEFINITIONS -lusb-1.0)
 
+find_package( OpenCV REQUIRED )
+include_directories( ${OpenCV_INCLUDE_DIRS} )
 
 link_directories(/home/tango-cs/PROJECT/pixy2_sdk/API/bin/)
 
