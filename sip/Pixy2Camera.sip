@@ -34,6 +34,10 @@ namespace pixy2
     Camera();
     ~Camera();
 
+    // pixy2 info object
+    void getDetectorImageSize(Size &size);
+    void getDetectorModel(std::string &det_model);
+
   private:
     Camera(const pixy2::Camera&);
   };

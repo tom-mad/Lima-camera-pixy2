@@ -72,9 +72,7 @@ if (CAMERA_MASTER_PROJECT)
 endif()
 
 
-# Find SDK library
-# TODO: Uncomment when cmake/FindSDK.cmake has been implemented
-# find_package(SDK REQUIRED)
+find_package(PixLib REQUIRED)
 
 file(GLOB_RECURSE CAMERA_INCS "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h")
 
@@ -106,8 +104,12 @@ target_include_directories(pixy2
 
 target_link_libraries(pixy2 PUBLIC limacore)
 
-# TODO: Uncomment when cmake/FindSDK.cmake has been implemented
-#target_compile_definitions(pixy2 PUBLIC SDK::SDK)
+
+target_include_directories(pixy2 PUBLIC ${PixLib_INCLUDE_DIRS})
+
+target_link_libraries(pixy2 PUBLIC libpixy2.a)
+
+target_link_libraries(pixy2 PUBLIC libusb-1.0.so)
 
 if(WIN32)
   target_compile_definitions(pixy2

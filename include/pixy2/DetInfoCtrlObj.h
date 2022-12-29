@@ -24,7 +24,7 @@
 
 #include "lima/HwInterface.h"
 
-#include <Pixy2_export.h>
+#include <pixy2_export.h>
 
 #include "pixy2/Camera.h"
 
@@ -38,7 +38,8 @@ class PIXY2_EXPORT DetInfoCtrlObj : public HwDetInfoCtrlObj {
   DEB_CLASS_NAMESPC(DebModCamera, "DetInfoCtrlObj", "Pixy2");
 
 public:
-  DetInfoCtrlObj(Camera &cam) : m_cam(cam) {}
+  DetInfoCtrlObj(Camera &cam);
+  ~DetInfoCtrlObj();
 
   virtual void getMaxImageSize(Size &max_image_size);
   virtual void getDetectorImageSize(Size &det_image_size);

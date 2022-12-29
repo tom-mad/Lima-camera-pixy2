@@ -24,7 +24,7 @@
 
 #include "lima/HwInterface.h"
 
-#include <Pixy2_export.h>
+#include <pixy2_export.h>
 
 #include "pixy2/Camera.h"
 
