@@ -1,22 +1,10 @@
-"""
-This file can be used with `pytest`.
-
-The following way to execute the whole tests.
-```
-pytest test/test.py
-```
-
-Or the following way to execute a single test.
-```
-pytest test/test.py::test_internal_trigger
-```
-
-"""
-
+import unittest
+import logging
 import numpy
 import time
-import logging
+
 from Lima import Core, Pixy2
+
 
 
 _logger = logging.getLogger(__name__)
@@ -39,67 +27,55 @@ class AcquisitionStatusFromImageStatusCallback(Core.CtControl.ImageStatusCallbac
         self.last_counter_ready = image_status.LastCounterReady
 
 
-def test_internal_trigger():
-    cam = Pixy2.Camera()
-    hw = Pixy2.Interface(cam)
-    ct = Core.CtControl(hw)
+class TestPixy2API(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):        
+        cls.pixy2_cam = Pixy2.Camera()
+        time.sleep(2)
+        cls.pixy2_hw = Pixy2.Interface(cls.pixy2_cam)
+        time.sleep(2)
+        cls.pixy2_ct = Core.CtControl(cls.pixy2_hw)
+        time.sleep(2)
+        cls.pixy2_ctimage = Core.CtImage(cls.pixy2_hw, cls.pixy2_ct)
 
-    acq_status = AcquisitionStatusFromImageStatusCallback()
-    ct.registerImageStatusCallback(acq_status)
+    def test_should_check_get_image_type(self):
+        self.assertEqual(TestPixy2API.pixy2_ctimage.getImageType(), Core.ImageType(0))
 
-    ct.prepareAcq()
-    ct.startAcq()
+    def test_should_check_get_max_image_size(self):
+        self.assertEqual(TestPixy2API.pixy2_ctimage.getMaxImageSize(), Core.Size(316,208))
 
-    while ct.getStatus().AcquisitionStatus != Core.AcqReady:
-        time.sleep(0.1)
+    def test_should_check_read_write_ExpTime(self):
+        TestPixy2API.pixy2_cam.setExpTime(0.5)
+        self.assertEqual(TestPixy2API.pixy2_cam.getExpTime(), 0.5)
 
-    assert acq_status.last_image_ready == 0
+    def test_should_check_read_write_NbHwFrames(self):
+        TestPixy2API.pixy2_cam.setNbHwFrames(5)
+        self.assertEqual(TestPixy2API.pixy2_cam.getNbHwFrames(), 5)
 
+    def test_should_check_multiple_time_running_acquisition(self):
+        acq_status = AcquisitionStatusFromImageStatusCallback()
+        TestPixy2API.pixy2_ct.registerImageStatusCallback(acq_status)
 
-def test_internal_trigger_multi():
-    cam = Pixy2.Camera()
-    hw = Pixy2.Interface(cam)
-    ct = Core.CtControl(hw)
+        acq = TestPixy2API.pixy2_ct.acquisition()
+        acq.setTriggerMode(Core.ExtTrigSingle)
+        acq.setAcqNbFrames(0)
+        acq.setAcqExpoTime(0.01)
 
-    acq_status = AcquisitionStatusFromImageStatusCallback()
-    ct.registerImageStatusCallback(acq_status)
+        self.assertEqual(TestPixy2API.pixy2_ct.getStatus().AcquisitionStatus, Core.AcqReady)
+        TestPixy2API.pixy2_ct.prepareAcq()
+        TestPixy2API.pixy2_ct.startAcq()
+        self.assertEqual(TestPixy2API.pixy2_ct.getStatus().AcquisitionStatus, Core.AcqRunning)
+        time.sleep(4)
+        TestPixy2API.pixy2_ct.stopAcq()
+        # TestPixy2API.pixy2_ct.resetAcq()
 
-    acq = ct.acquisition()
-    acq.setTriggerMode(Core.IntTrigMult)
-    acq.setAcqNbFrames(3)
-    acq.setAcqExpoTime(0.01)
+        acq.setTriggerMode(Core.ExtTrigSingle)
+        acq.setAcqNbFrames(3)
+        acq.setAcqExpoTime(0.01)
+        TestPixy2API.pixy2_ct.prepareAcq()
+        TestPixy2API.pixy2_ct.startAcq()
+        self.assertEqual(TestPixy2API.pixy2_ct.getStatus().AcquisitionStatus, Core.AcqRunning)
+        time.sleep(2)
+        self.assertEqual(TestPixy2API.pixy2_ct.getStatus().AcquisitionStatus, Core.AcqReady)
 
-    ct.prepareAcq()
-    for _ in range(3):
-        time.sleep(0.1)
-        ct.startAcq()
-        # Make sure the detector is ready for next image
-        while hw.getStatus().acq != Core.AcqReady:
-            time.sleep(0.1)
-
-    while ct.getStatus().AcquisitionStatus != Core.AcqReady:
-        time.sleep(0.1)
-
-    assert acq_status.last_image_ready == 2
-
-
-def test_external_trigger_single():
-    cam = Pixy2.Camera()
-    hw = Pixy2.Interface(cam)
-    ct = Core.CtControl(hw)
-
-    acq_status = AcquisitionStatusFromImageStatusCallback()
-    ct.registerImageStatusCallback(acq_status)
-
-    acq = ct.acquisition()
-    acq.setTriggerMode(Core.ExtTrigSingle)
-    acq.setAcqNbFrames(3)
-    acq.setAcqExpoTime(0.01)
-
-    ct.prepareAcq()
-    cam.extTrigAcq()  # simulate an external trigger
-
-    while ct.getStatus().AcquisitionStatus != Core.AcqReady:
-        time.sleep(0.1)
-
-    assert acq_status.last_image_ready == 2
+        self.assertEqual(acq_status.last_image_ready, 2)

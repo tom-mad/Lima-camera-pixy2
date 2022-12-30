@@ -1,12 +1,16 @@
 #pragma once
 
+#include <iostream>
 #include <pixy2_export.h>
 #include <lima/HwBufferMgr.h>
 #include "lima/HwInterface.h"
 #include <lima/Debug.h>
 
 #include "libpixyusb2.h"
-
+#include <opencv2/core.hpp>
+#include "opencv2/imgcodecs.hpp"
+#include "opencv2/highgui.hpp"
+#include "opencv2/imgproc.hpp"
 namespace lima
 {
 namespace pixy2
@@ -22,7 +26,24 @@ namespace pixy2
 
     Camera();
     ~Camera();
+//---------------------------
+//- OpenCV methods
+//---------------------------
+    cv::Mat toMat(uint8_t * img);
+    uint8_t * touint8(cv::Mat img);
+    uint8_t * draw(uint8_t * img);
+    void  get_square_features();
+    void  get_blocks();
 
+//---------------------------
+//- Internal
+//---------------------------
+
+    std::vector<cv::Point> begin_line_point;
+    std::vector<cv::Point> end_line_point;
+
+    std::vector<cv::Point> begin_square_point;
+    std::vector<cv::Point> end_square_point;
 //---------------------------
 //- Internal
 //---------------------------
@@ -30,6 +51,7 @@ namespace pixy2
     void _stopAcq(bool internalFlag = false);
     void _setStatus(Camera::Status status, bool force);
     void demosaic(uint16_t width, uint16_t height, const uint8_t *bayerImage, uint32_t *image);
+    void  get_line_features();
 //---------------------------
 //- Interface
 //---------------------------
@@ -70,6 +92,7 @@ namespace pixy2
 //- Pixy
 //---------------------------
     Pixy2 pixy;
+    int prog;
     int pixy_image_number;
     Camera::Status pixy_status;
 //---------------------------
