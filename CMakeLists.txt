@@ -89,6 +89,8 @@ target_link_libraries(pixy2 PUBLIC libpixy2.a)
 
 target_link_libraries(pixy2 PUBLIC libusb-1.0.so)
 
+target_link_libraries(pixy2 PUBLIC ${OpenCV_LIBS})
+
 if(WIN32)
   target_compile_definitions(pixy2
     PRIVATE pixy2_EXPORTS

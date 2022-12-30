@@ -6,7 +6,6 @@ using namespace lima::pixy2;
 void Camera::_startAcq()
 {
   DEB_MEMBER_FUNCT();
-  pixy.m_link.stop();
   pixy_wait_flag = false;
   pixy_acq_started = true;
   pixy_cond.broadcast();
@@ -18,7 +17,6 @@ void Camera::_stopAcq(bool internalFlag)
 
   pixy_wait_flag = true;
   pixy_status = Camera::Ready;
-  pixy.m_link.resume();
 }
 
 void Camera::_setStatus(Camera::Status status, bool force)
@@ -117,11 +115,11 @@ void Camera::getExpTime(double &exp_time)
 }
 void Camera::setLatTime(double lat_time)
 {
-
+  prog = static_cast<int>(lat_time);
 }
 void Camera::getLatTime(double &lat_time)
 {
-
+  lat_time = static_cast<double>(prog);
 }
 void Camera::setNbHwFrames(int nb_frames)
 {

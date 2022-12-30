@@ -45,7 +45,8 @@ pixy_wait_flag(true),
 pixy_thread_running(true),
 pixy_acq_thread(nullptr),
 pixy_acq_started(false),
-pixy_exposure_time(1.)
+pixy_exposure_time(1.),
+prog(0)
 {
   DEB_CONSTRUCTOR();
 
@@ -113,9 +114,22 @@ void Camera::_AcqThread::threadFunction() {
       } 
       std::cout << "update picture "<<pixy_cam.pixy_image_number<<" of "<<pixy_cam.pixy_nb_frames<<std::endl;
       uint8_t *bayerFrame;
-
-      // grab raw frame, BGGR Bayer format, 1 byte per pixel
+      switch (pixy_cam.prog)
+      {
+      case 1:
+        pixy_cam.get_line_features();
+        break;
+      case 2:
+        pixy_cam.get_square_features();
+        break;
+      default:
+        break;
+      }
+      pixy_cam.pixy.m_link.stop();
       pixy_cam.pixy.m_link.getRawFrame(&bayerFrame);
+      pixy_cam.pixy.m_link.resume();
+      bayerFrame = pixy_cam.draw(bayerFrame);
+      // bayerFrame = pixy_cam.touint8(pixy_cam.toMat(bayerFrame));
       // convert Bayer frame to RGB frame
       // pixy_cam.demosaic(PIXY2_RAW_FRAME_WIDTH, PIXY2_RAW_FRAME_HEIGHT, bayerFrame, rgbFrame);
 
