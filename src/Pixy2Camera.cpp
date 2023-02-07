@@ -128,7 +128,6 @@ void Camera::_AcqThread::threadFunction() {
       pixy_cam.pixy.m_link.stop();
       pixy_cam.pixy.m_link.getRawFrame(&bayerFrame);
       pixy_cam.pixy.m_link.resume();
-      bayerFrame = pixy_cam.draw(bayerFrame);
       // bayerFrame = pixy_cam.touint8(pixy_cam.toMat(bayerFrame));
       // convert Bayer frame to RGB frame
       // pixy_cam.demosaic(PIXY2_RAW_FRAME_WIDTH, PIXY2_RAW_FRAME_HEIGHT, bayerFrame, rgbFrame);

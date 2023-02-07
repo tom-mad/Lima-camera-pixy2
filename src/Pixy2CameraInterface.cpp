@@ -99,11 +99,11 @@ void Camera::getImageType(ImageType &image_type)
 //---------------------------
 void Camera::setTrigMode(TrigMode trig_mode)
 {
-
+//TODO
 }
 void Camera::getTrigMode(TrigMode &trig_mode)
 {
-
+//TODO
 }
 void Camera::setExpTime(double exp_time)
 {
@@ -115,11 +115,11 @@ void Camera::getExpTime(double &exp_time)
 }
 void Camera::setLatTime(double lat_time)
 {
-  prog = static_cast<int>(lat_time);
+//TODO
 }
 void Camera::getLatTime(double &lat_time)
 {
-  lat_time = static_cast<double>(prog);
+//TODO
 }
 void Camera::setNbHwFrames(int nb_frames)
 {
